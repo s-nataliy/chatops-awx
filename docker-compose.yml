@@ -1,0 +1,7 @@
+version: '3.7'
+services:
+  cadvisor:
+    image: chatops-awx:latest
+    container_name: chatops
+    volumes:
+      - ./config.yaml:/config.yaml
