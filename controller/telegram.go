@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"io/ioutil"
 	"log"
+	"os"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"gopkg.in/yaml.v3"
@@ -36,8 +37,8 @@ var foundUser = false
 func TelegramBot() {
 	//Чтение конфигурации из файла config.yaml
 	var conf Conf
-	yml, err := ioutil.ReadFile("config.yaml")
-	//yml, err := ioutil.ReadFile("myconfig.yaml")
+	//yml, err := ioutil.ReadFile("config.yaml")
+	yml, err := ioutil.ReadFile(os.Getenv("CONFIG_FILE_PATH"))
 	if err != nil {
 		log.Println(err)
 	}
@@ -63,6 +64,7 @@ func TelegramBot() {
 			userID = update.Message.From.ID         // ID пользователя
 			userName = update.Message.From.UserName // Имя пользователя
 
+			foundUser = false
 			for _, user := range conf.TelegramUsers {
 				if user == userName {
 					foundUser = true
@@ -85,6 +87,7 @@ func TelegramBot() {
 				mainBot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, ""))
 				responseJob := RunTemplate(conf, authAWX)
 				mainBot.Send(tgbotapi.NewMessage(chatID, "Статус выполнения Job'а: "+responseJob))
+
 			}
 
 		}
