@@ -12,5 +12,5 @@ docker run -d chatops-awx:latest
 
 Also, you can use docker compose to run:
 ```
-docker compose run -d 
+docker compose up -d 
 ```
