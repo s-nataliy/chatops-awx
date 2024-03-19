@@ -20,6 +20,4 @@ WORKDIR /
 
 COPY --from=build-stage /chatops-awx /chatops-awx
 
-USER nonroot:nonroot
-
 CMD ["/chatops-awx"]
