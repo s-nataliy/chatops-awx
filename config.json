@@ -1,10 +1,10 @@
 {
-    "token_telegram" : "",
-	"url_awx" : "",
-	"login_awx" : "",
-	"password_awx" : "",
+    "token_telegram" : "token",
+	"url_awx" : "http://",
+	"login_awx" : "login",
+	"password_awx" : "pass",
 	"telegram_users" : [
-                        "",
-                        ""
+                        "user1",
+                        "user2"
                         ]
 }
