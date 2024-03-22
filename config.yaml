@@ -1,7 +1,0 @@
-token_telegram: "token"
-url_awx: "http://awx.example.com"
-login_awx: "user"
-password_awx: "pass"
-telegram_users:
-  - user1
-  - user2

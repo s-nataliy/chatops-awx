@@ -1,0 +1,10 @@
+{
+    "token_telegram" : "",
+	"url_awx" : "",
+	"login_awx" : "",
+	"password_awx" : "",
+	"telegram_users" : [
+                        "",
+                        ""
+                        ]
+}

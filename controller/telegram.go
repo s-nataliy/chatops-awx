@@ -2,13 +2,13 @@ package controller
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"io/ioutil"
 	"log"
 	"os"
 	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
-	"gopkg.in/yaml.v3"
 )
 
 var textMess string
@@ -25,25 +25,25 @@ type TemplateData struct {
 
 // Структура конфигурационного файла в формате yaml
 type Conf struct {
-	Token         string   `yaml:"token_telegram"`
-	URL           string   `yaml:"url_awx"`
-	LoginAWX      string   `yaml:"login_awx"`
-	PassAWX       string   `yaml:"password_awx"`
-	TelegramUsers []string `yaml:"telegram_users"`
+	Token         string   `json:"token_telegram"`
+	URL           string   `json:"url_awx"`
+	LoginAWX      string   `json:"login_awx"`
+	PassAWX       string   `json:"password_awx"`
+	TelegramUsers []string `json:"telegram_users"`
 }
 
 var TemplateList []TemplateData
 var foundUser = false
 
 func TelegramBot() {
-	//Чтение конфигурации из файла config.yaml
+	//Чтение конфигурации из файла config.json
 	var conf Conf
-	yml, err := ioutil.ReadFile(os.Getenv("CONFIG_FILE_PATH"))
+	jsn, err := ioutil.ReadFile(os.Getenv("CONFIG_FILE_PATH"))
 	if err != nil {
 		log.Println(err)
 	}
 
-	yaml.Unmarshal(yml, &conf)
+	json.Unmarshal(jsn, &conf)
 	authAWX := base64.StdEncoding.EncodeToString([]byte(conf.LoginAWX + ":" + conf.PassAWX))
 
 	mainBot, err := tgbotapi.NewBotAPI(conf.Token)
