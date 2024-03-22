@@ -61,10 +61,10 @@ func GetStructTemplates(url string, authAWX string) []TemplateData {
 	return templates
 }
 
-func RunTemplate(conf Conf, authAWX string) string {
+func RunTemplate(command []string, conf Conf, authAWX string) string {
 	TemplateList := GetStructTemplates(conf.URL, authAWX)
-	temp_name := "ping"  //command[1]
-	server_name := "all" //command[2]
+	temp_name := command[1]
+	server_name := command[2]
 	jsonServer, _ := json.Marshal(map[string]string{
 		"limit": server_name,
 	})

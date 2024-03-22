@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"gopkg.in/yaml.v3"
@@ -37,7 +38,6 @@ var foundUser = false
 func TelegramBot() {
 	//Чтение конфигурации из файла config.yaml
 	var conf Conf
-	//yml, err := ioutil.ReadFile("config.yaml")
 	yml, err := ioutil.ReadFile(os.Getenv("CONFIG_FILE_PATH"))
 	if err != nil {
 		log.Println(err)
@@ -80,14 +80,17 @@ func TelegramBot() {
 
 			log.Printf("[%s](%d) %s", userName, userID, textMess)
 
-			switch update.Message.Text {
+			command := strings.Split(textMess, " ")
+			switch command[0] {
 			case "/list_temp":
 				mainBot.Send(tgbotapi.NewMessage(chatID, BuildListTemplates(conf.URL, authAWX)))
 			case "/run_temp":
-				mainBot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, ""))
-				responseJob := RunTemplate(conf, authAWX)
-				mainBot.Send(tgbotapi.NewMessage(chatID, "Статус выполнения Job'а: "+responseJob))
-
+				if len(command) != 3 {
+					mainBot.Send(tgbotapi.NewMessage(chatID, "Неверно введена команда. Шаблон: /run_temp template_name server_name"))
+				} else {
+					responseJob := RunTemplate(command, conf, authAWX)
+					mainBot.Send(tgbotapi.NewMessage(chatID, "Статус выполнения Job'а: "+responseJob))
+				}
 			}
 
 		}
