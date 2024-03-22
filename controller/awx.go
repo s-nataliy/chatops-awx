@@ -6,7 +6,10 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 	"time"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
 var client = &http.Client{}
@@ -61,7 +64,7 @@ func GetStructTemplates(url string, authAWX string) []TemplateData {
 	return templates
 }
 
-func RunTemplate(command []string, conf Conf, authAWX string) string {
+func RunTemplate(command []string, conf Conf, authAWX string) (string, string) {
 	TemplateList := GetStructTemplates(conf.URL, authAWX)
 	temp_name := command[1]
 	server_name := command[2]
@@ -78,7 +81,7 @@ func RunTemplate(command []string, conf Conf, authAWX string) string {
 	}
 
 	response := RequestAPI("POST", newURL, jsonServer, authAWX)
-	return GetStatusJob(response, conf, authAWX)
+	return temp_name, GetStatusJob(response, conf, authAWX)
 }
 
 func GetStatusJob(responseJob interface{}, conf Conf, authAWX string) string {
@@ -91,4 +94,42 @@ func GetStatusJob(responseJob interface{}, conf Conf, authAWX string) string {
 	statusJob := getJob.(map[string]interface{})["status"].(string)
 
 	return statusJob
+}
+
+func RunSilence(command []string, replyMess *tgbotapi.Message, conf Conf, authAWX string) string {
+	TemplateList := GetStructTemplates(conf.URL, authAWX)
+	temp_name := "SilenceAlert"
+
+	var newURL string
+
+	replyText = replyMess.Text
+	replyUser = replyMess.From.UserName
+	dataCenter = strings.ToLower(replyUser[:strings.IndexByte(replyUser, '-')])
+
+	alertName = replyText[:strings.IndexByte(replyText, ':')-1]
+
+	instanceValue = replyText[strings.Index(replyText, "Instance: ")+10:]
+	instanceValue = instanceValue[:strings.IndexByte(instanceValue, '\n')]
+	if len(command) < 2 {
+		durationValue = "1h"
+	} else {
+		durationValue = command[1]
+	}
+	jsonSilence, _ := json.Marshal(map[string]interface{}{
+		"extra_vars": map[string]string{
+			"datacenter": dataCenter,
+			"alertname":  alertName,
+			"instance":   instanceValue,
+			"author":     userName,
+			"duration":   durationValue,
+		},
+	})
+	for _, selectTemplates := range TemplateList {
+		if selectTemplates.name == temp_name {
+			newURL = conf.URL + selectTemplates.url + "launch/"
+		}
+	}
+
+	response := RequestAPI("POST", newURL, jsonSilence, authAWX)
+	return GetStatusJob(response, conf, authAWX)
 }

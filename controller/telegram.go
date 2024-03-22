@@ -16,6 +16,13 @@ var chatID int64
 var userID int
 var userName string
 
+var replyUser string
+var replyText string
+var dataCenter string
+var alertName string
+var instanceValue string
+var durationValue string
+
 type TemplateData struct {
 	id          float64
 	url         string
@@ -88,11 +95,18 @@ func TelegramBot() {
 				if len(command) != 3 {
 					mainBot.Send(tgbotapi.NewMessage(chatID, "Неверно введена команда. Шаблон: /run_temp template_name server_name"))
 				} else {
-					responseJob := RunTemplate(command, conf, authAWX)
+					jobName, responseJob := RunTemplate(command, conf, authAWX)
+					mainBot.Send(tgbotapi.NewMessage(chatID, "Статус выполнения Job'а "+jobName+": "+responseJob))
+				}
+			case "/silence":
+				if update.Message.ReplyToMessage == nil {
+					mainBot.Send(tgbotapi.NewMessage(chatID, "Сообщение не является ответным"))
+				} else {
+					responseJob := RunSilence(command, update.Message.ReplyToMessage, conf, authAWX)
 					mainBot.Send(tgbotapi.NewMessage(chatID, "Статус выполнения Job'а: "+responseJob))
 				}
-			}
 
+			}
 		}
 	}
 }
