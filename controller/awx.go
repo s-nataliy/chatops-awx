@@ -103,18 +103,19 @@ func RunSilence(command []string, replyMess *tgbotapi.Message, conf Conf, authAW
 	var newURL string
 
 	replyText = replyMess.Text
-	replyUser = replyMess.From.UserName
-	dataCenter = strings.ToLower(replyUser[:strings.IndexByte(replyUser, '-')])
+	replyUser = replyMess.From.FirstName
+	//dataCenter = strings.ToLower(replyUser[:strings.IndexByte(replyUser, '-')])
 
 	alertName = replyText[:strings.IndexByte(replyText, ':')-1]
 
 	instanceValue = replyText[strings.Index(replyText, "Instance: ")+10:]
 	instanceValue = instanceValue[:strings.IndexByte(instanceValue, '\n')]
-	if len(command) < 2 {
+	if len(command) < 3 {
 		durationValue = "1h"
 	} else {
-		durationValue = command[1]
+		durationValue = command[2]
 	}
+	dataCenter = strings.ToLower(command[1])
 	jsonSilence, _ := json.Marshal(map[string]interface{}{
 		"extra_vars": map[string]string{
 			"datacenter": dataCenter,

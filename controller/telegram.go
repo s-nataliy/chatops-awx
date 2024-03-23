@@ -85,16 +85,16 @@ func TelegramBot() {
 				continue
 			}
 
-			log.Printf("[%s](%d) %s", userName, userID, textMess)
-
 			command := strings.Split(textMess, " ")
 			switch command[0] {
 			case "/list_temp":
+				log.Printf("[%s](%d) %s", userName, userID, textMess)
 				mainBot.Send(tgbotapi.NewMessage(chatID, BuildListTemplates(conf.URL, authAWX)))
 			case "/run_temp":
 				if len(command) != 3 {
 					mainBot.Send(tgbotapi.NewMessage(chatID, "Неверно введена команда. Шаблон: /run_temp template_name server_name"))
 				} else {
+					log.Printf("[%s](%d) %s", userName, userID, textMess)
 					jobName, responseJob := RunTemplate(command, conf, authAWX)
 					mainBot.Send(tgbotapi.NewMessage(chatID, "Статус выполнения Job'а "+jobName+": "+responseJob))
 				}
@@ -102,6 +102,7 @@ func TelegramBot() {
 				if update.Message.ReplyToMessage == nil {
 					mainBot.Send(tgbotapi.NewMessage(chatID, "Сообщение не является ответным"))
 				} else {
+					log.Printf("[%s](%d) %s", userName, userID, textMess)
 					responseJob := RunSilence(command, update.Message.ReplyToMessage, conf, authAWX)
 					mainBot.Send(tgbotapi.NewMessage(chatID, "Статус выполнения Job'а: "+responseJob))
 				}
