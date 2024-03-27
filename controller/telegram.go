@@ -11,6 +11,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
+var mainBot *tgbotapi.BotAPI
 var textMess string
 var chatID int64
 var userID int
@@ -53,7 +54,7 @@ func TelegramBot() {
 	json.Unmarshal(jsn, &conf)
 	authAWX := base64.StdEncoding.EncodeToString([]byte(conf.LoginAWX + ":" + conf.PassAWX))
 
-	mainBot, err := tgbotapi.NewBotAPI(conf.Token)
+	mainBot, err = tgbotapi.NewBotAPI(conf.Token)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -81,7 +82,7 @@ func TelegramBot() {
 			if foundUser {
 				log.Printf("Authorized on account %s", mainBot.Self.UserName)
 			} else {
-				log.Printf("Пользователь %v не авторизован", userName)
+				//log.Printf("Пользователь %v не авторизован", userName)
 				continue
 			}
 
@@ -95,19 +96,31 @@ func TelegramBot() {
 					mainBot.Send(tgbotapi.NewMessage(chatID, "Неверно введена команда. Шаблон: /run_temp template_name server_name"))
 				} else {
 					log.Printf("[%s](%d) %s", userName, userID, textMess)
-					jobName, responseJob := RunTemplate(command, conf, authAWX)
-					mainBot.Send(tgbotapi.NewMessage(chatID, "Статус выполнения Job'а "+jobName+": "+responseJob))
+					RunTemplate(command, conf, authAWX)
 				}
 			case "/silence":
-				if update.Message.ReplyToMessage == nil {
+				switch {
+				case update.Message.ReplyToMessage == nil:
 					mainBot.Send(tgbotapi.NewMessage(chatID, "Сообщение не является ответным"))
-				} else {
+				case len(command) == 1:
+					mainBot.Send(tgbotapi.NewMessage(chatID, "Некорректная команда. Шаблон: /silence datacenter duration"))
+				default:
 					log.Printf("[%s](%d) %s", userName, userID, textMess)
-					responseJob := RunSilence(command, update.Message.ReplyToMessage, conf, authAWX)
-					mainBot.Send(tgbotapi.NewMessage(chatID, "Статус выполнения Job'а: "+responseJob))
+					RunSilence(command, update.Message.ReplyToMessage, conf, authAWX)
+
 				}
 
 			}
 		}
 	}
+
+}
+
+func WriteBodyResponse(respBody []byte) {
+	var jsonResponse interface{}
+	json.Unmarshal([]byte(respBody), &jsonResponse)
+	nameJob := jsonResponse.(map[string]interface{})["name"].(string)
+	statusJob := jsonResponse.(map[string]interface{})["status"].(string)
+	urlJob := jsonResponse.(map[string]interface{})["url"].(string)
+	mainBot.Send(tgbotapi.NewMessage(chatID, "Статус выполнения Job'a "+nameJob+": "+statusJob+"\n"+urlJob))
 }

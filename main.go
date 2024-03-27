@@ -5,5 +5,6 @@ import (
 )
 
 func main() {
+	go controller.ListenHTTP()
 	controller.TelegramBot()
 }

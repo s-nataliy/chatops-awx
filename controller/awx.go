@@ -64,7 +64,7 @@ func GetStructTemplates(url string, authAWX string) []TemplateData {
 	return templates
 }
 
-func RunTemplate(command []string, conf Conf, authAWX string) (string, string) {
+func RunTemplate(command []string, conf Conf, authAWX string) {
 	TemplateList := GetStructTemplates(conf.URL, authAWX)
 	temp_name := command[1]
 	server_name := command[2]
@@ -80,8 +80,7 @@ func RunTemplate(command []string, conf Conf, authAWX string) (string, string) {
 		}
 	}
 
-	response := RequestAPI("POST", newURL, jsonServer, authAWX)
-	return temp_name, GetStatusJob(response, conf, authAWX)
+	RequestAPI("POST", newURL, jsonServer, authAWX)
 }
 
 func GetStatusJob(responseJob interface{}, conf Conf, authAWX string) string {
@@ -96,7 +95,7 @@ func GetStatusJob(responseJob interface{}, conf Conf, authAWX string) string {
 	return statusJob
 }
 
-func RunSilence(command []string, replyMess *tgbotapi.Message, conf Conf, authAWX string) string {
+func RunSilence(command []string, replyMess *tgbotapi.Message, conf Conf, authAWX string) {
 	TemplateList := GetStructTemplates(conf.URL, authAWX)
 	temp_name := "SilenceAlert"
 
@@ -131,6 +130,5 @@ func RunSilence(command []string, replyMess *tgbotapi.Message, conf Conf, authAW
 		}
 	}
 
-	response := RequestAPI("POST", newURL, jsonSilence, authAWX)
-	return GetStatusJob(response, conf, authAWX)
+	RequestAPI("POST", newURL, jsonSilence, authAWX)
 }
